@@ -1,0 +1,2 @@
+[tool.poe.tasks]
+mkinit = "mkinit -w --black --recursive --relative --nomods"

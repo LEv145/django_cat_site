@@ -1,3 +1,4 @@
 Django==4.0.4
 praw==7.6.0
 dependency-injector==4.39.1
+djangorestframework==3.13.1

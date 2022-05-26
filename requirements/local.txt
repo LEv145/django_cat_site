@@ -2,3 +2,6 @@ Django==4.0.4
 praw==7.6.0
 dependency-injector==4.39.1
 djangorestframework==3.13.1
+django-stubs==1.11.0
+djangorestframework-stubs==1.6.0
+Pillow==9.1.1

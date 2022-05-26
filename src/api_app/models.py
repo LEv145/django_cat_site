@@ -1,6 +1,8 @@
+from pathlib import Path
+
 from django.db import models
 
 
-class ImageStorage(models.Model):
+class Upload(models.Model):
     caption = models.CharField(max_length=64, blank=True)
-    file_ = models.ImageField(...)
+    image_file = models.ImageField(upload_to=Path("uploads/"))

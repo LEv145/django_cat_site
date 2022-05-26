@@ -1,35 +1,24 @@
 from __future__ import annotations
 
-import json
+import typing as t
 
-from django.http import HttpRequest, HttpResponse, JsonResponse
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework import status
+from rest_framework.response import Response
 
-from .models import ImageStorage
+from .serializers import UploadSerializer
+from .permissions import IsOwnerOrReadOnly
 
-
-def upload_image(request: HttpRequest) -> HttpResponse:
-    if request.method != "POST":
-        return JsonResponse(
-            status=405,
-            data=dict(message="HTTP method not allowed", error_info=None),
-        )
-
-    json_data = json.loads(request.body)
-
-    try:
-        file_: str = json_data["file"]
-        caption: str | None = json_data.get("caption", None)
-    except KeyError as error:
-        return JsonResponse(
-            status=400,
-            data=dict(message="Bad Request", error_info=f"Invalid key: {error}"),
-        )
-    image = ImageStorage(file_=file_, caption=caption)
-    image.save()
-
-    return JsonResponse(
-        status=201,
-        data=dict(message="Created", error_info=None),
-    )
+if t.TYPE_CHECKING:
+    from rest_framework.request import Request
 
 
+@api_view(["POST"])
+@permission_classes([IsOwnerOrReadOnly])
+def uploads(request: Request) -> Response:
+    serializer = UploadSerializer(data=request.data)
+    if not serializer.is_valid():
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)

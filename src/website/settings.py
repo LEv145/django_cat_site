@@ -1,8 +1,7 @@
+import os
 from pathlib import Path
 
-
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+from .local_settings import *
 
 
 # Application definition
@@ -88,5 +87,12 @@ USE_TZ = True
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
-from .local_settings import *
+ALLOWED_HOSTS = []
+
+
+# Others
+
+MEDIA_ROOT = os.path.join(WORK_PATH, "media/")

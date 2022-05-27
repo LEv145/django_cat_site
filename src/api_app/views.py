@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import typing as t
 
+from django.shortcuts import get_object_or_404
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .serializers import UploadSerializer
 from .models import Upload
@@ -14,14 +17,13 @@ if t.TYPE_CHECKING:
     from rest_framework.request import Request
 
 
-@api_view(["POST", "GET"])
-def uploads_view(request: Request) -> Response:
-    if request.method == "GET":
+class UploadList(APIView):
+    def get(self, _request: Request) -> Response:
         uploads = Upload.objects.all()
         serializer = UploadSerializer(uploads, many=True)
         return Response(serializer.data)
 
-    elif request.method == "POST":
+    def post(self, request: Request) -> Response:
         serializer = UploadSerializer(data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -30,18 +32,16 @@ def uploads_view(request: Request) -> Response:
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
-@api_view(["GET", "PUT", "DELETE"])
-def upload_detail_view(request: Request, pk: int) -> Response:
-    try:
-        upload = Upload.objects.get(pk=pk)
-    except Upload.DoesNotExist:
-        return Response(status=status.HTTP_404_NOT_FOUND)
+class UploadDetail(APIView):
+    def get(self, _request: Request, pk: int):
+        upload = get_object_or_404(Upload, pk=pk)
 
-    if request.method == "GET":
         serializer = UploadSerializer(upload)
         return Response(serializer.data)
 
-    elif request.method == "PUT":
+    def put(self, request: Request, pk: int):
+        upload = get_object_or_404(Upload, pk=pk)
+
         serializer = UploadSerializer(upload, data=request.data)
         if not serializer.is_valid():
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -49,6 +49,8 @@ def upload_detail_view(request: Request, pk: int) -> Response:
         serializer.save()
         return Response(serializer.data)
 
-    elif request.method == "DELETE":
+    def delete(self, request: Request, pk: int):
+        upload = get_object_or_404(Upload, pk=pk)
+
         upload.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

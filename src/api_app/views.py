@@ -33,13 +33,13 @@ class UploadList(APIView):
 
 
 class UploadDetail(APIView):
-    def get(self, _request: Request, pk: int):
+    def get(self, _request: Request, pk: int) -> Response:
         upload = get_object_or_404(Upload, pk=pk)
 
         serializer = UploadSerializer(upload)
         return Response(serializer.data)
 
-    def put(self, request: Request, pk: int):
+    def put(self, request: Request, pk: int) -> Response:
         upload = get_object_or_404(Upload, pk=pk)
 
         serializer = UploadSerializer(upload, data=request.data)
@@ -49,7 +49,7 @@ class UploadDetail(APIView):
         serializer.save()
         return Response(serializer.data)
 
-    def delete(self, request: Request, pk: int):
+    def delete(self, _request: Request, pk: int) -> Response:
         upload = get_object_or_404(Upload, pk=pk)
 
         upload.delete()

@@ -5,7 +5,6 @@ import typing as t
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.parsers import JSONParser
 
 from .serializers import UploadSerializer
 from .models import Upload
@@ -16,25 +15,25 @@ if t.TYPE_CHECKING:
 
 
 @api_view(["POST", "GET"])
-@permission_classes([IsOwnerOrReadOnly])
-def uploads(request: Request) -> Response:
+def uploads_view(request: Request) -> Response:
     if request.method == "GET":
-        snippets = Upload.objects.all()
-        serializer = UploadSerializer(snippets, many=True)
+        uploads = Upload.objects.all()
+        serializer = UploadSerializer(uploads, many=True)
         return Response(serializer.data)
 
-    serializer = UploadSerializer(data=request.data)
-    if not serializer.is_valid():
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    elif request.method == "POST":
+        serializer = UploadSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    serializer.save()
-    return Response(serializer.data, status=status.HTTP_201_CREATED)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(["GET", "PUT", "DELETE"])
-def upload_detail(request: Request, upload_id: int) -> Response:
+def upload_detail_view(request: Request, pk: int) -> Response:
     try:
-        upload = Upload.objects.get(pk=upload_id)
+        upload = Upload.objects.get(pk=pk)
     except Upload.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -43,12 +42,12 @@ def upload_detail(request: Request, upload_id: int) -> Response:
         return Response(serializer.data)
 
     elif request.method == "PUT":
-        data = JSONParser().parse(request)
-        serializer = UploadSerializer(upload, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer = UploadSerializer(upload, data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer.save()
+        return Response(serializer.data)
 
     elif request.method == "DELETE":
         upload.delete()

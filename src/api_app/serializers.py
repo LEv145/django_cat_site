@@ -5,11 +5,11 @@ from .models import Upload
 
 
 class UploadSerializer(serializers.ModelSerializer):
-    owner = serializers.ReadOnlyField(source="owner.username")
+    # owner = serializers.ReadOnlyField(source="owner.username")
 
     class Meta:
         model = Upload
-        fields = ["caption", "image_file", "owner"]
+        fields = ["caption", "image_file"]
 
 
 class UserSerializer(serializers.ModelSerializer):
